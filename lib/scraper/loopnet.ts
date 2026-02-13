@@ -252,6 +252,15 @@ function parsePropertyData(
   // Try to extract Cap Rate from HTML (not in JSON-LD)
   const capRate = extractCapRate(html);
 
+  // Extract or calculate market rent
+  const grossIncome = parseFloat(additionalProps['Annual Income']) || undefined;
+  const marketRent = extractMarketRent(
+    listing.description || '',
+    grossIncome,
+    undefined, // noi not typically available
+    units
+  );
+
   const propertyData: PropertyData = {
     // Core identification
     url,
@@ -266,6 +275,8 @@ function parsePropertyData(
     pricePerSF: undefined, // Calculate if needed
     capRate,
     noi: undefined, // Not typically available in LoopNet data
+    grossIncome,
+    marketRent,
 
     // Property details
     propertyType: additionalProps['Property Type'] || 'Unknown',
@@ -429,6 +440,46 @@ function extractCapRate(html: string): string | undefined {
   const capRateMatch = text.match(/Cap Rate:?\s*(\d+\.?\d*%)/i);
 
   return capRateMatch ? capRateMatch[1] : undefined;
+}
+
+/**
+ * Extract market rent from description or calculate from financials
+ */
+function extractMarketRent(
+  description: string,
+  grossIncome?: number,
+  noi?: number,
+  units?: number
+): number | undefined {
+  // Step 1: Try regex extraction from description
+  const patterns = [
+    /market\s+rent[s]?\s+(?:should\s+)?(?:average\s+)?\$?([\d,]+)/i,
+    /rent[s]?\s+(?:at\s+)?\$?([\d,]+)\s+per\s+unit/i,
+    /\$?([\d,]+)\s+per\s+unit\s+per\s+month/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = description.match(pattern);
+    if (match) {
+      const value = parseFloat(match[1].replace(/,/g, ''));
+      if (value > 0 && value < 100000) { // Sanity check
+        return value;
+      }
+    }
+  }
+
+  // Step 2: Calculate from financials
+  if (grossIncome && units && units > 0) {
+    return grossIncome / units / 12;
+  }
+
+  if (noi && units && units > 0) {
+    // Estimate gross income from NOI (assume 60% NOI margin)
+    const estimatedGrossIncome = noi / 0.6;
+    return estimatedGrossIncome / units / 12;
+  }
+
+  return undefined; // No market rent available
 }
 
 /**
