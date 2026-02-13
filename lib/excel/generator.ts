@@ -9,7 +9,7 @@ import * as path from 'path';
 import { PropertyData, FinalAssumptions, ExcelGenerationOptions, ExcelGenerationResult, ExcelGenerationError } from '../types';
 
 // Path to template (relative to project root)
-const TEMPLATE_PATH = path.join(process.cwd(), 'templates', 'LoopMagic Template.xlsx');
+const TEMPLATE_PATH = path.join(process.cwd(), 'templates', 'LoopMagic 2.xlsx');
 
 // ============================================================================
 // Main Export Function
@@ -55,6 +55,9 @@ export async function generateExcel(options: ExcelGenerationOptions): Promise<Ex
       .substring(0, 50);
     const filename = `${addressSlug}-analysis-${timestamp}.xlsx`;
 
+    // Recalculate on load to preserve named ranges and formula integrity
+    workbook.calcProperties.fullCalcOnLoad = true;
+
     // Write to buffer
     const buffer = await workbook.xlsx.writeBuffer();
 
@@ -97,16 +100,13 @@ function populateAcquisitionAssumptions(
   assumptions: FinalAssumptions
 ): void {
   // B11: Purchase Price
-  setCellValue(sheet, 'B11', property.price);
+  setCellValue(sheet, 'B11', Math.round(property.price));
 
   // B12: Closing Costs %
   setCellValue(sheet, 'B12', assumptions.closing_costs_pct);
 
-  // B14: Going-in Cap Rate
-  const goingInCap = property.capRate
-    ? parseFloat(property.capRate.replace('%', '')) / 100
-    : 0.05;
-  setCellValue(sheet, 'B14', goingInCap);
+  // B14: Going-in Cap Rate - FORMULA using Year 0 NOI (F23)
+  setCellFormula(sheet, 'B14', '=F23/B11');
 }
 
 function populateFinancingAssumptions(sheet: ExcelJS.Worksheet, assumptions: FinalAssumptions): void {
@@ -178,4 +178,9 @@ function populateExpenseAssumptions(sheet: ExcelJS.Worksheet, assumptions: Final
 function setCellValue(sheet: ExcelJS.Worksheet, address: string, value: string | number): void {
   const cell = sheet.getCell(address);
   cell.value = value;
+}
+
+function setCellFormula(sheet: ExcelJS.Worksheet, address: string, formula: string): void {
+  const cell = sheet.getCell(address);
+  cell.value = { formula: formula.startsWith('=') ? formula.slice(1) : formula };
 }

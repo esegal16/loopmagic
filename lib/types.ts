@@ -149,11 +149,110 @@ export interface FinalAssumptions {
 }
 
 // ============================================================================
+// Deal Analysis Types (from Analyzer Module)
+// ============================================================================
+
+export interface DealAnalysis {
+  executiveSummary: string;
+
+  keyMetrics: {
+    metric: string;
+    value: string;
+    assessment: 'strong' | 'moderate' | 'weak';
+    commentary: string;
+  }[];
+
+  risks: {
+    category: string;
+    description: string;
+    severity: 'high' | 'medium' | 'low';
+    mitigation?: string;
+  }[];
+
+  strengths: string[];
+  weaknesses: string[];
+
+  marketContext: {
+    capRateComparison: string;
+    returnsBenchmark: string;
+    marketTrends: string;
+  };
+
+  recommendation: {
+    verdict: 'buy' | 'pass' | 'negotiate';
+    reasoning: string;
+    keyConditions?: string[];
+    suggestedPrice?: number;
+    suggestedPriceReasoning?: string;
+  };
+
+  generatedAt: string;
+  modelUsed: string;
+}
+
+export interface ExcelMetrics {
+  irr: {
+    unlevered: number | null;
+    levered: number | null;
+  };
+  equityMultiple: {
+    unlevered: number | null;
+    levered: number | null;
+  };
+  profit: {
+    unlevered: number | null;
+    levered: number | null;
+  };
+  year1: {
+    effectiveGrossIncome: number | null;
+    totalOperatingExpenses: number | null;
+    noi: number | null;
+    noiMargin: number | null;
+    yieldOnCost: number | null;
+    capexReserves: number | null;
+    totalDebtService: number | null;
+    dscr: number | null;
+    unleveredCashFlow: number | null;
+    leveredCashFlow: number | null;
+  };
+  acquisition: {
+    purchasePrice: number | null;
+    closingCostsPct: number | null;
+    totalAcquisitionCost: number | null;
+    goingInCapRate: number | null;
+    pricePerUnit: number | null;
+    pricePerSF: number | null;
+    loanAmount: number | null;
+    equityRequired: number | null;
+  };
+  exit: {
+    exitCapRate: number | null;
+    holdPeriodYears: number | null;
+    netSaleProceeds: number | null;
+  };
+  cashOnCash: number | null;
+  averageAnnualCashFlow: {
+    unlevered: number | null;
+    levered: number | null;
+  };
+}
+
+export interface AnalysisResult {
+  property: PropertyData;
+  assumptions: FinalAssumptions;
+  excelMetrics: ExcelMetrics;
+  dealAnalysis: DealAnalysis;
+  excelBuffer: Buffer;
+  filename: string;
+}
+
+// ============================================================================
 // API Request/Response Types
 // ============================================================================
 
 export interface AnalyzeRequest {
   loopnetUrl: string;
+  assumptionOverrides?: Partial<FinalAssumptions>;
 }
 
 export interface AnalyzeResponse {
@@ -162,6 +261,8 @@ export interface AnalyzeResponse {
     analysisId: string;
     property: PropertyData;
     assumptions: FinalAssumptions;
+    excelMetrics: ExcelMetrics;
+    dealAnalysis: DealAnalysis;
     downloadUrl: string;
   };
   error?: {

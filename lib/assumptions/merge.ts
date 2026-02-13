@@ -1,11 +1,12 @@
 import { ExtractedAssumptions, FinalAssumptions, PropertyData } from '../types';
 
-const DEFAULTS: Omit<FinalAssumptions, 'monthly_rent_per_unit' | 'exit_cap_rate' | 'sources'> = {
+const DEFAULTS: Omit<FinalAssumptions, 'monthly_rent_per_unit' | 'sources'> = {
   closing_costs_pct: 0.02,
   ltv: 0.65,
   interest_rate: 0.055,
   amortization_years: 30,
   io_period_years: 2,
+  exit_cap_rate: 0.055,
   sale_costs_pct: 0.02,
   hold_period_years: 5,
   year1_occupancy: 0.85,
@@ -27,15 +28,9 @@ export function mergeAssumptions(
   // Derive rent using hierarchy from arch doc
   const monthly_rent = deriveMonthlyRent(extracted, property);
 
-  // Exit cap = going-in cap (default)
-  const goingInCap = property.capRate
-    ? parseFloat(property.capRate.replace('%', '')) / 100
-    : 0.05;
-
   return {
     ...DEFAULTS,
     monthly_rent_per_unit: monthly_rent,
-    exit_cap_rate: goingInCap,
     year1_occupancy: extracted.occupancy_current ?? DEFAULTS.year1_occupancy,
     stabilized_occupancy: extracted.occupancy_stabilized ?? DEFAULTS.stabilized_occupancy,
     opex_pct: extracted.opex_pct ?? DEFAULTS.opex_pct,
