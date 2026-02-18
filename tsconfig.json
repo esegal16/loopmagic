@@ -39,6 +39,7 @@
     "node_modules",
     "*.ts",
     "tests/**",
-    "output/**"
+    "output/**",
+    "archive/**"
   ]
 }

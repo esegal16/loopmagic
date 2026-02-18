@@ -313,7 +313,7 @@ export async function evaluateExcelMetrics(buffer: Buffer | ArrayBuffer): Promis
     { licenseKey: 'gpl-v3' }
   );
 
-  const sheetId = hf.getSheetId(hf.getSheetName(0)!)!;
+  const sheetId = 0;
 
   const getNum = (address: string): number | null => {
     const { col, row } = parseCellAddress(address);
@@ -375,9 +375,7 @@ export async function evaluateExcelMetrics(buffer: Buffer | ArrayBuffer): Promis
   const exitColumn = String.fromCharCode(64 + exitColumnIndex);
   const netSaleProceedsCell = `${exitColumn}40`;
 
-  hf.destroy();
-
-  return {
+  const result = {
     irr: {
       unlevered: unleveredIRR,
       levered: leveredIRR,
@@ -423,4 +421,8 @@ export async function evaluateExcelMetrics(buffer: Buffer | ArrayBuffer): Promis
       levered: avgLeveredCF,
     },
   };
+
+  hf.destroy();
+
+  return result;
 }
