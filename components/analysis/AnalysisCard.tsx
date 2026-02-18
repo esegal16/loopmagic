@@ -8,7 +8,7 @@ interface AnalysisCardProps {
 }
 
 export function AnalysisCard({ analysis }: AnalysisCardProps) {
-  const property = analysis.property?.raw_data;
+  const property = analysis.property;
   const metrics = analysis.excel_metrics;
   const dealAnalysis = analysis.deal_analysis;
 
@@ -51,10 +51,10 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-medium text-gray-900 truncate max-w-xs">
-              {property?.address?.fullAddress || 'Unknown Property'}
+              {property?.address?.fullAddress || property?.property_name || 'Unknown Property'}
             </h3>
             <p className="text-sm text-gray-500">
-              {property?.propertyType || 'Property'} - {property?.units || '?'} units
+              {property?.property_type || 'Property'} - {property?.units ?? '?'} units
             </p>
           </div>
           <div className="flex items-center gap-2">

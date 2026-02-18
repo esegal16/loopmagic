@@ -53,7 +53,7 @@ export async function generateExcel(options: ExcelGenerationOptions): Promise<Ex
       .replace(/[^a-zA-Z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .substring(0, 50);
-    const filename = `${addressSlug}-analysis-${timestamp}.xlsx`;
+    const filename = `${addressSlug}-${timestamp}.xlsx`;
 
     // Recalculate on load to preserve named ranges and formula integrity
     workbook.calcProperties.fullCalcOnLoad = true;

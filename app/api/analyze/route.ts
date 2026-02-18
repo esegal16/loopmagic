@@ -4,7 +4,7 @@ import { scrapeLoopNetProperty } from '@/lib/scraper/loopnet';
 import { cleanPropertyData } from '@/lib/cleaner/data-cleaner';
 import { mergeAssumptions } from '@/lib/assumptions/merge';
 import { generateExcel } from '@/lib/excel/generator';
-import { readExcelMetrics } from '@/lib/analyzer/excel-reader';
+import { evaluateExcelMetrics } from '@/lib/analyzer/excel-evaluator';
 import { analyzeDeal } from '@/lib/analyzer/deal-analyzer';
 import { createProperty, createAnalysis, updateAnalysis } from '@/lib/supabase/database';
 import { uploadExcelFile } from '@/lib/supabase/storage';
@@ -38,7 +38,22 @@ export async function POST(request: Request) {
 
     // Step 1: Scrape property data
     const scrapeStart = Date.now();
-    const property = await scrapeLoopNetProperty(loopnetUrl);
+    let property;
+    try {
+      property = await scrapeLoopNetProperty(loopnetUrl);
+    } catch (error) {
+      console.error('Scraping error:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'SCRAPE_FAILED',
+            message: 'Could not retrieve listing data. Please check the URL and try again.',
+          },
+        },
+        { status: 422 }
+      );
+    }
     const scrapeDurationMs = Date.now() - scrapeStart;
 
     // Step 2: Extract assumptions with Claude
@@ -80,7 +95,7 @@ export async function POST(request: Request) {
     }
 
     // Step 7: Extract metrics from Excel
-    const excelMetrics = await readExcelMetrics(excelResult.buffer);
+    const excelMetrics = await evaluateExcelMetrics(excelResult.buffer);
 
     // Step 8: Run Claude analysis
     const analysisStart = Date.now();
@@ -130,7 +145,7 @@ export async function POST(request: Request) {
         success: false,
         error: {
           code: 'ANALYSIS_ERROR',
-          message: error instanceof Error ? error.message : 'Analysis failed',
+          message: 'An unexpected error occurred. Please try again.',
         },
       },
       { status: 500 }
