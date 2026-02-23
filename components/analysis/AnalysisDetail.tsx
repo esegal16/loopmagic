@@ -17,7 +17,6 @@ export function AnalysisDetail({ analysis, property }: AnalysisDetailProps) {
   const [activeTab, setActiveTab] = useState<'summary' | 'metrics' | 'risks'>('summary');
   const [downloading, setDownloading] = useState(false);
 
-  const rawProperty = property?.raw_data;
   const metrics = analysis.excel_metrics;
   const dealAnalysis = analysis.deal_analysis;
 
@@ -27,11 +26,16 @@ export function AnalysisDetail({ analysis, property }: AnalysisDetailProps) {
       const response = await fetch(`/api/analyses/${analysis.id}/download`);
       if (!response.ok) throw new Error('Download failed');
 
+      // Extract filename from Content-Disposition header (set by server from storage path)
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filenameMatch = contentDisposition?.match(/filename="?(.+?)"?$/);
+      const filename = filenameMatch?.[1] || `analysis-${analysis.id}.xlsx`;
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `analysis-${analysis.id}.xlsx`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -55,11 +59,11 @@ export function AnalysisDetail({ analysis, property }: AnalysisDetailProps) {
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            {rawProperty?.address?.fullAddress || 'Property Analysis'}
+            {property?.address?.fullAddress || property?.property_name || 'Property Analysis'}
           </h1>
           <p className="text-gray-600 mt-1">
-            {rawProperty?.propertyType || 'Property'} - {rawProperty?.units || '?'} units
-            {rawProperty?.buildingSizeFormatted && ` - ${rawProperty.buildingSizeFormatted}`}
+            {property?.property_type || 'Property'} - {property?.units ?? '?'} units
+            {property?.building_size ? ` - ${property.building_size.toLocaleString()} SF` : ''}
           </p>
         </div>
         <div className="flex items-center gap-3">

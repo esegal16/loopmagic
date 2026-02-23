@@ -404,7 +404,7 @@ export interface UserStats {
   totalAnalyses: number;
   completedAnalyses: number;
   totalProperties: number;
-  recentAnalyses: DbAnalysis[];
+  recentAnalyses: AnalysisWithProperty[];
 }
 
 export async function getUserStats(
@@ -423,7 +423,7 @@ export async function getUserStats(
       .eq('user_id', userId),
     supabase
       .from('analyses')
-      .select('*')
+      .select('*, property:properties(*)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(5),
