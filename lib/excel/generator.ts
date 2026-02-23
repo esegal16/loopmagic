@@ -100,7 +100,7 @@ function populateAcquisitionAssumptions(
   assumptions: FinalAssumptions
 ): void {
   // B11: Purchase Price
-  setCellValue(sheet, 'B11', Math.round(property.price));
+  setCellValue(sheet, 'B11', property.price);
 
   // B12: Closing Costs %
   setCellValue(sheet, 'B12', assumptions.closing_costs_pct);
@@ -124,8 +124,7 @@ function populateFinancingAssumptions(sheet: ExcelJS.Worksheet, assumptions: Fin
 }
 
 function populateExitAssumptions(sheet: ExcelJS.Worksheet, assumptions: FinalAssumptions): void {
-  // B27: Exit Cap Rate
-  setCellValue(sheet, 'B27', assumptions.exit_cap_rate);
+  // B27: Exit Cap Rate — formula =B14 lives in template (matches going-in cap)
 
   // B28: Sale Costs %
   setCellValue(sheet, 'B28', assumptions.sale_costs_pct);

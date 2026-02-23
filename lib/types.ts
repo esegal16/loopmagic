@@ -145,7 +145,7 @@ export interface FinalAssumptions {
   capex_growth: number;       // 0.02
 
   // Metadata
-  sources: Record<string, 'extracted' | 'default'>;
+  sources: Record<string, 'extracted' | 'derived' | 'default'>;
 }
 
 // ============================================================================
