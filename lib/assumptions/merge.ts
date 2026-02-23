@@ -1,12 +1,11 @@
 import { ExtractedAssumptions, FinalAssumptions, PropertyData } from '../types';
 
-const DEFAULTS: Omit<FinalAssumptions, 'monthly_rent_per_unit' | 'sources'> = {
+const DEFAULTS: Omit<FinalAssumptions, 'monthly_rent_per_unit' | 'exit_cap_rate' | 'sources'> = {
   closing_costs_pct: 0.02,
   ltv: 0.65,
   interest_rate: 0.055,
   amortization_years: 30,
   io_period_years: 2,
-  exit_cap_rate: 0.055,
   sale_costs_pct: 0.02,
   hold_period_years: 5,
   year1_occupancy: 0.85,
@@ -28,9 +27,13 @@ export function mergeAssumptions(
   // Derive rent using hierarchy from arch doc
   const monthly_rent = deriveMonthlyRent(extracted, property);
 
+  // Exit cap rate = going-in cap rate (matches Excel formula B27=B14)
+  const exit_cap_rate = deriveGoingInCapRate(extracted, property);
+
   return {
     ...DEFAULTS,
     monthly_rent_per_unit: monthly_rent,
+    exit_cap_rate,
     year1_occupancy: extracted.occupancy_current ?? DEFAULTS.year1_occupancy,
     stabilized_occupancy: extracted.occupancy_stabilized ?? DEFAULTS.stabilized_occupancy,
     opex_pct: extracted.opex_pct ?? getOpexByBuildingClass(property.buildingClass),
@@ -39,6 +42,41 @@ export function mergeAssumptions(
     rent_growth: extracted.rent_growth ?? DEFAULTS.rent_growth,
     sources: buildSourcesMap(extracted, property),
   };
+}
+
+/**
+ * Derive going-in cap rate from listing data.
+ * Used so exit_cap_rate = going_in_cap in the assumptions object,
+ * mirroring the Excel formula B27=B14.
+ */
+function deriveGoingInCapRate(extracted: ExtractedAssumptions, property: PropertyData): number {
+  // 1. Stated cap rate from listing (via data cleaner)
+  if (extracted.stated_cap_rate) return extracted.stated_cap_rate;
+
+  // 2. Cap rate string from scraper (e.g. "8.01%")
+  if (property.capRate) {
+    return parseFloat(property.capRate.replace('%', '')) / 100;
+  }
+
+  // 3. Back-calculate from NOI and price
+  if (property.noi && property.price) {
+    return property.noi / property.price;
+  }
+
+  // 4. Cannot determine — use NOI implied from our own assumptions
+  // This will be recalculated by the Excel formula anyway, so pick a
+  // reasonable placeholder that won't mislead the Claude prompt.
+  // going_in_cap ≈ (rent × units × 12 × occupancy × (1 - opex_pct)) / price
+  if (property.price && property.units) {
+    const rent = deriveMonthlyRent(extracted, property);
+    const occupancy = extracted.occupancy_current ?? 0.85;
+    const opex = extracted.opex_pct ?? 0.40;
+    const impliedNOI = rent * property.units * 12 * occupancy * (1 - opex);
+    return impliedNOI / property.price;
+  }
+
+  // 5. Absolute fallback
+  return 0.05;
 }
 
 function deriveMonthlyRent(extracted: ExtractedAssumptions, property: PropertyData): number {
