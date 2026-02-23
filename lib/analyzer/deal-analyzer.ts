@@ -12,39 +12,46 @@ import { ExcelMetrics } from './excel-reader';
 // ============================================================================
 
 export interface DealAnalysis {
+  // I. Executive Summary
   executiveSummary: string;
 
-  keyMetrics: {
-    metric: string;
-    value: string;
-    assessment: 'strong' | 'moderate' | 'weak';
-    commentary: string;
-  }[];
+  // II. Investment Thesis
+  investmentThesis: string;
 
-  risks: {
-    category: string;
-    description: string;
-    severity: 'high' | 'medium' | 'low';
-    mitigation?: string;
-  }[];
+  // III. Market & Submarket
+  marketAndSubmarket: string;
 
-  strengths: string[];
-  weaknesses: string[];
-
-  marketContext: {
-    capRateComparison: string;
-    returnsBenchmark: string;
-    marketTrends: string;
+  // IV. Financial Analysis
+  financialAnalysis: {
+    narrative: string;
+    metrics: {
+      metric: string;
+      value: string;
+      assessment: 'strong' | 'moderate' | 'weak';
+      commentary: string;
+    }[];
   };
 
+  // V. Value-Add & Upside
+  valueAddAndUpside: string;
+
+  // VI. Risk Matrix
+  riskMatrix: {
+    risk: string;
+    probability: 'low' | 'medium' | 'high';
+    impact: 'low' | 'medium' | 'high';
+    mitigation: string;
+  }[];
+
+  // VII. Recommendation
   recommendation: {
-    verdict: 'buy' | 'pass' | 'negotiate';
+    verdict: 'pursue' | 'watch' | 'pass';
     reasoning: string;
-    keyConditions?: string[];
-    suggestedPrice?: number;
-    suggestedPriceReasoning?: string;
+    keyConditions: string[];
+    dueDiligenceItems: string[];
   };
 
+  // Metadata
   generatedAt: string;
   modelUsed: string;
 }
@@ -208,45 +215,43 @@ ${property.description.substring(0, 1500)}${property.description.length > 1500 ?
 
 ---
 
-Provide your analysis as a JSON object with the following structure:
+Provide your analysis as a JSON object following this 7-section investment committee memo format:
 
 {
-  "executiveSummary": "A 2-3 paragraph executive summary of the deal. Include the property basics, key investment thesis, main risks, and bottom-line recommendation.",
+  "executiveSummary": "One paragraph. State the opportunity, headline returns, and your initial recommendation. End with: 'Based on the financial profile, this deal is a [PURSUE/WATCH/PASS].' followed by a one-sentence justification.",
 
-  "keyMetrics": [
-    {
-      "metric": "Metric name (e.g., 'Levered IRR', 'Going-in Cap Rate', 'DSCR')",
-      "value": "The actual value",
-      "assessment": "strong|moderate|weak",
-      "commentary": "Brief explanation of why this is strong/moderate/weak for this market/property type"
-    }
-  ],
+  "investmentThesis": "What is the core bet? Why does this deal create or destroy value? Frame it the way you'd pitch to an investment committee in 60 seconds. Be specific to THIS property — not generic.",
 
-  "risks": [
-    {
-      "category": "Category (e.g., 'Market Risk', 'Financing Risk', 'Operational Risk', 'Exit Risk')",
-      "description": "Detailed description of the risk",
-      "severity": "high|medium|low",
-      "mitigation": "Suggested mitigation strategy (optional)"
-    }
-  ],
+  "marketAndSubmarket": "Analyze macro and micro dynamics for this specific location. Demand drivers, supply pipeline risk, employment/population trends, rent growth trajectory. Reference the city, submarket, and neighborhood.",
 
-  "strengths": ["Array of key strengths as strings"],
-
-  "weaknesses": ["Array of key weaknesses as strings"],
-
-  "marketContext": {
-    "capRateComparison": "How does this cap rate compare to current market for similar properties?",
-    "returnsBenchmark": "How do the projected returns compare to typical multifamily investments?",
-    "marketTrends": "Brief commentary on the market/submarket outlook"
+  "financialAnalysis": {
+    "narrative": "Build the return story. How does entry cap compare to the seller's claim? What does the proforma cap look like post-stabilization? Where is the return coming from — cash flow, appreciation, or both?",
+    "metrics": [
+      {
+        "metric": "e.g. 'Levered IRR'",
+        "value": "e.g. '18.5%'",
+        "assessment": "strong|moderate|weak",
+        "commentary": "Why this is strong/moderate/weak for this property type and market"
+      }
+    ]
   },
 
+  "valueAddAndUpside": "Model the business plan. What does rent growth, occupancy improvement, or expense reduction look like? What is the realistic delta between in-place NOI and stabilized NOI? How long does lease-up or renovation take? Be conservative.",
+
+  "riskMatrix": [
+    {
+      "risk": "Specific risk description",
+      "probability": "low|medium|high",
+      "impact": "low|medium|high",
+      "mitigation": "Your proposed mitigation"
+    }
+  ],
+
   "recommendation": {
-    "verdict": "buy|pass|negotiate",
+    "verdict": "pursue|watch|pass",
     "reasoning": "2-3 sentences explaining the recommendation",
-    "keyConditions": ["Conditions that must be met for a buy recommendation, if applicable"],
-    "suggestedPrice": 8000000,
-    "suggestedPriceReasoning": "If negotiating, what price would make this deal attractive and why"
+    "keyConditions": ["3 conditions that must be true for this deal to work"],
+    "dueDiligenceItems": ["5 critical due diligence items to verify before moving forward"]
   }
 }
 
@@ -271,6 +276,14 @@ Use these benchmarks when assessing the deal:
 - Market supply/demand dynamics
 - Property age and condition
 - Management intensity
+
+VERDICT DEFINITIONS:
+- PURSUE: The deal meets return thresholds and risks are manageable. Worth moving to LOI.
+- WATCH: Returns are borderline or data is insufficient. Monitor for price reduction or new information.
+- PASS: Returns are inadequate, risks too high, or fundamentals are broken.
+
+Include exactly 5 entries in riskMatrix, 3 entries in keyConditions, and 5 entries in dueDiligenceItems.
+Include at minimum these metrics in financialAnalysis.metrics: Entry Cap Rate, Pro Forma Cap Rate, Levered IRR, Equity Multiple, DSCR.
 
 IMPORTANT: Respond ONLY with a valid, complete JSON object. No additional text before or after the JSON. Ensure all strings are properly escaped and the JSON is syntactically correct.`;
 }
@@ -315,16 +328,15 @@ function parseAnalysisResponse(text: string): Omit<DealAnalysis, 'generatedAt' |
       throw new Error('Missing recommendation verdict in analysis');
     }
 
-    // Ensure arrays exist
-    parsed.keyMetrics = parsed.keyMetrics || [];
-    parsed.risks = parsed.risks || [];
-    parsed.strengths = parsed.strengths || [];
-    parsed.weaknesses = parsed.weaknesses || [];
-    parsed.marketContext = parsed.marketContext || {
-      capRateComparison: '',
-      returnsBenchmark: '',
-      marketTrends: '',
-    };
+    // Ensure new IC memo fields have defaults
+    parsed.investmentThesis = parsed.investmentThesis || '';
+    parsed.marketAndSubmarket = parsed.marketAndSubmarket || '';
+    parsed.financialAnalysis = parsed.financialAnalysis || { narrative: '', metrics: [] };
+    parsed.financialAnalysis.metrics = parsed.financialAnalysis.metrics || [];
+    parsed.valueAddAndUpside = parsed.valueAddAndUpside || '';
+    parsed.riskMatrix = parsed.riskMatrix || [];
+    parsed.recommendation.keyConditions = parsed.recommendation.keyConditions || [];
+    parsed.recommendation.dueDiligenceItems = parsed.recommendation.dueDiligenceItems || [];
 
     return parsed;
   } catch (error) {
@@ -343,59 +355,54 @@ function parseAnalysisResponse(text: string): Omit<DealAnalysis, 'generatedAt' |
 export function formatAnalysis(analysis: DealAnalysis): string {
   const lines: string[] = [];
 
-  lines.push('=' .repeat(60));
-  lines.push('DEAL ANALYSIS REPORT');
+  lines.push('='.repeat(60));
+  lines.push('INVESTMENT COMMITTEE MEMO');
   lines.push(`Generated: ${new Date(analysis.generatedAt).toLocaleString()}`);
   lines.push('='.repeat(60));
 
-  lines.push('\n## EXECUTIVE SUMMARY\n');
+  lines.push('\n## I. EXECUTIVE SUMMARY\n');
   lines.push(analysis.executiveSummary);
 
-  lines.push('\n## RECOMMENDATION\n');
+  lines.push('\n## II. INVESTMENT THESIS\n');
+  lines.push(analysis.investmentThesis);
+
+  lines.push('\n## III. MARKET & SUBMARKET\n');
+  lines.push(analysis.marketAndSubmarket);
+
+  lines.push('\n## IV. FINANCIAL ANALYSIS\n');
+  lines.push(analysis.financialAnalysis.narrative);
+  if (analysis.financialAnalysis.metrics.length > 0) {
+    lines.push('');
+    analysis.financialAnalysis.metrics.forEach((m) => {
+      const badge = m.assessment === 'strong' ? '[+]' : m.assessment === 'weak' ? '[-]' : '[~]';
+      lines.push(`${badge} ${m.metric}: ${m.value}`);
+      lines.push(`   ${m.commentary}`);
+    });
+  }
+
+  lines.push('\n## V. VALUE-ADD & UPSIDE\n');
+  lines.push(analysis.valueAddAndUpside);
+
+  lines.push('\n## VI. RISK MATRIX\n');
+  analysis.riskMatrix.forEach((r) => {
+    lines.push(`[P:${r.probability.toUpperCase()}] [I:${r.impact.toUpperCase()}] ${r.risk}`);
+    lines.push(`   Mitigation: ${r.mitigation}`);
+  });
+
+  lines.push('\n## VII. RECOMMENDATION\n');
   const verdict = analysis.recommendation.verdict.toUpperCase();
-  const verdictEmoji = verdict === 'BUY' ? '[BUY]' : verdict === 'PASS' ? '[PASS]' : '[NEGOTIATE]';
-  lines.push(`${verdictEmoji} ${verdict}`);
+  lines.push(`[${verdict}] ${verdict}`);
   lines.push(analysis.recommendation.reasoning);
 
-  if (analysis.recommendation.keyConditions?.length) {
+  if (analysis.recommendation.keyConditions.length > 0) {
     lines.push('\nKey Conditions:');
     analysis.recommendation.keyConditions.forEach((c) => lines.push(`  - ${c}`));
   }
 
-  if (analysis.recommendation.suggestedPrice) {
-    lines.push(`\nSuggested Price: $${analysis.recommendation.suggestedPrice.toLocaleString()}`);
-    if (analysis.recommendation.suggestedPriceReasoning) {
-      lines.push(analysis.recommendation.suggestedPriceReasoning);
-    }
+  if (analysis.recommendation.dueDiligenceItems.length > 0) {
+    lines.push('\nDue Diligence Items:');
+    analysis.recommendation.dueDiligenceItems.forEach((d) => lines.push(`  - ${d}`));
   }
-
-  lines.push('\n## KEY METRICS\n');
-  analysis.keyMetrics.forEach((m) => {
-    const badge = m.assessment === 'strong' ? '[+]' : m.assessment === 'weak' ? '[-]' : '[~]';
-    lines.push(`${badge} ${m.metric}: ${m.value}`);
-    lines.push(`   ${m.commentary}`);
-  });
-
-  lines.push('\n## STRENGTHS\n');
-  analysis.strengths.forEach((s) => lines.push(`  + ${s}`));
-
-  lines.push('\n## WEAKNESSES\n');
-  analysis.weaknesses.forEach((w) => lines.push(`  - ${w}`));
-
-  lines.push('\n## RISKS\n');
-  analysis.risks.forEach((r) => {
-    const severity = r.severity === 'high' ? '[HIGH]' : r.severity === 'medium' ? '[MED]' : '[LOW]';
-    lines.push(`${severity} ${r.category}`);
-    lines.push(`   ${r.description}`);
-    if (r.mitigation) {
-      lines.push(`   Mitigation: ${r.mitigation}`);
-    }
-  });
-
-  lines.push('\n## MARKET CONTEXT\n');
-  lines.push(`Cap Rate: ${analysis.marketContext.capRateComparison}`);
-  lines.push(`Returns: ${analysis.marketContext.returnsBenchmark}`);
-  lines.push(`Trends: ${analysis.marketContext.marketTrends}`);
 
   return lines.join('\n');
 }

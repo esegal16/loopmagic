@@ -153,39 +153,46 @@ export interface FinalAssumptions {
 // ============================================================================
 
 export interface DealAnalysis {
+  // I. Executive Summary
   executiveSummary: string;
 
-  keyMetrics: {
-    metric: string;
-    value: string;
-    assessment: 'strong' | 'moderate' | 'weak';
-    commentary: string;
-  }[];
+  // II. Investment Thesis
+  investmentThesis: string;
 
-  risks: {
-    category: string;
-    description: string;
-    severity: 'high' | 'medium' | 'low';
-    mitigation?: string;
-  }[];
+  // III. Market & Submarket
+  marketAndSubmarket: string;
 
-  strengths: string[];
-  weaknesses: string[];
-
-  marketContext: {
-    capRateComparison: string;
-    returnsBenchmark: string;
-    marketTrends: string;
+  // IV. Financial Analysis
+  financialAnalysis: {
+    narrative: string;
+    metrics: {
+      metric: string;
+      value: string;
+      assessment: 'strong' | 'moderate' | 'weak';
+      commentary: string;
+    }[];
   };
 
+  // V. Value-Add & Upside
+  valueAddAndUpside: string;
+
+  // VI. Risk Matrix
+  riskMatrix: {
+    risk: string;
+    probability: 'low' | 'medium' | 'high';
+    impact: 'low' | 'medium' | 'high';
+    mitigation: string;
+  }[];
+
+  // VII. Recommendation
   recommendation: {
-    verdict: 'buy' | 'pass' | 'negotiate';
+    verdict: 'pursue' | 'watch' | 'pass';
     reasoning: string;
-    keyConditions?: string[];
-    suggestedPrice?: number;
-    suggestedPriceReasoning?: string;
+    keyConditions: string[];
+    dueDiligenceItems: string[];
   };
 
+  // Metadata
   generatedAt: string;
   modelUsed: string;
 }

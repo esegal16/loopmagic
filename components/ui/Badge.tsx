@@ -42,15 +42,15 @@ export { Badge };
 
 // Specialized badge for recommendations
 export interface RecommendationBadgeProps {
-  verdict: 'buy' | 'pass' | 'negotiate';
+  verdict: 'pursue' | 'watch' | 'pass';
   size?: 'sm' | 'md' | 'lg';
 }
 
 export function RecommendationBadge({ verdict, size = 'md' }: RecommendationBadgeProps) {
   const config = {
-    buy: { label: 'BUY', variant: 'success' as const },
+    pursue: { label: 'PURSUE', variant: 'success' as const },
+    watch: { label: 'WATCH', variant: 'warning' as const },
     pass: { label: 'PASS', variant: 'danger' as const },
-    negotiate: { label: 'NEGOTIATE', variant: 'warning' as const },
   };
 
   const { label, variant } = config[verdict];
