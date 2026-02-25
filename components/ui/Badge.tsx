@@ -40,7 +40,7 @@ Badge.displayName = 'Badge';
 
 export { Badge };
 
-// Specialized badge for recommendations
+// Specialized badge for recommendations — warm palette solid fill
 export interface RecommendationBadgeProps {
   verdict: 'pursue' | 'watch' | 'pass';
   size?: 'sm' | 'md' | 'lg';
@@ -48,16 +48,24 @@ export interface RecommendationBadgeProps {
 
 export function RecommendationBadge({ verdict, size = 'md' }: RecommendationBadgeProps) {
   const config = {
-    pursue: { label: 'PURSUE', variant: 'success' as const },
-    watch: { label: 'WATCH', variant: 'warning' as const },
-    pass: { label: 'PASS', variant: 'danger' as const },
+    pursue: { label: 'PURSUE', bg: 'bg-lm-green', text: 'text-white' },
+    watch: { label: 'WATCH', bg: 'bg-lm-amber', text: 'text-white' },
+    pass: { label: 'PASS', bg: 'bg-lm-red', text: 'text-white' },
   };
 
-  const { label, variant } = config[verdict];
+  const sizes = {
+    sm: 'px-2 py-0.5 text-[10px]',
+    md: 'px-3 py-1 text-[11px]',
+    lg: 'px-3.5 py-1.5 text-xs',
+  };
+
+  const { label, bg, text } = config[verdict];
 
   return (
-    <Badge variant={variant} size={size}>
+    <span
+      className={`inline-flex items-center font-heading font-bold tracking-wide ${bg} ${text} ${sizes[size]}`}
+    >
       {label}
-    </Badge>
+    </span>
   );
 }

@@ -6,10 +6,28 @@
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+
+  /* Warm palette — hardcoded for proper opacity modifier support */
+  --color-lm-page: #F5F3EF;
+  --color-lm-card: #E8E4DC;
+  --color-lm-border: #D1CCC4;
+  --color-lm-text: #1a1a1a;
+  --color-lm-text-secondary: #555555;
+  --color-lm-text-tertiary: #888888;
+  --color-lm-green: #4A7C59;
+  --color-lm-red: #B54A4A;
+  --color-lm-amber: #C05A3C;
+  --color-lm-blue: #5C7C8A;
+  --color-lm-dark: #2a2a2a;
+
+  /* Fonts — var() is fine here, resolved at runtime */
+  --font-heading: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +40,10 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body, 'Inter', sans-serif);
 }
+
+/* Analysis page scrollbar */
+.lm-scrollbar::-webkit-scrollbar { width: 6px; }
+.lm-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.lm-scrollbar::-webkit-scrollbar-thumb { background: #D1CCC4; border-radius: 3px; }

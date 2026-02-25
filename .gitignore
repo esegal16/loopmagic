@@ -46,3 +46,6 @@ next-env.d.ts
 # Temporary files
 *.tmp
 *.temp
+
+# Archive directory (test scripts and debug files)
+archive/

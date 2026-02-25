@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getAnalysis, getProperty } from '@/lib/supabase/database';
 import { AnalysisDetail } from '@/components/analysis/AnalysisDetail';
-import { LoadingState } from '@/components/ui/Spinner';
+import { AnalysisLoadingState } from '@/components/analysis/AnalysisLoadingState';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -57,11 +57,7 @@ export default async function AnalysisPage({
 
   // Show loading state for processing analyses
   if (analysis.status === 'pending' || analysis.status === 'processing') {
-    return (
-      <div className="max-w-4xl">
-        <LoadingState message="Analysis in progress..." />
-      </div>
-    );
+    return <AnalysisLoadingState property={property} />;
   }
 
   // Show error state for failed analyses
@@ -76,9 +72,5 @@ export default async function AnalysisPage({
     );
   }
 
-  return (
-    <div className="max-w-4xl">
-      <AnalysisDetail analysis={analysis} property={property} />
-    </div>
-  );
+  return <AnalysisDetail analysis={analysis} property={property} />;
 }
