@@ -76,10 +76,55 @@ export async function scrapeLoopNetProperty(loopnetUrl: string): Promise<Propert
   return propertyData;
 }
 
+const RETRYABLE_STATUS_CODES = new Set([520, 429, 503, 502, 504]);
+const MAX_RETRIES = 3;
+const RETRY_DELAYS_MS = [0, 5000, 10000]; // immediate, 5s, 10s
+
 /**
- * Scrape HTML using ScrapingBee API
+ * Scrape HTML using ScrapingBee API with automatic retries
  */
 async function scrapeWithScrapingBee(url: string): Promise<ScrapingBeeResponse> {
+  let lastError: Error | null = null;
+  let totalCreditsUsed = 0;
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    if (attempt > 0) {
+      const delay = RETRY_DELAYS_MS[attempt] || 10000;
+      console.log(`⏳ Retry ${attempt}/${MAX_RETRIES - 1} in ${delay / 1000}s...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    try {
+      const result = await scrapeWithScrapingBeeOnce(url);
+      if (totalCreditsUsed > 0) {
+        console.log(`✅ Succeeded on attempt ${attempt + 1} (${totalCreditsUsed + result.creditsUsed} total credits)`);
+      }
+      return { html: result.html, creditsUsed: totalCreditsUsed + result.creditsUsed };
+    } catch (error: any) {
+      lastError = error;
+      const status = error.details?.status;
+      const creditsUsed = error.details?.creditsUsed || 0;
+      totalCreditsUsed += creditsUsed;
+
+      // Only retry on transient/retryable errors
+      if (status && RETRYABLE_STATUS_CODES.has(status)) {
+        console.warn(`⚠️  Attempt ${attempt + 1} failed with ${status} (${creditsUsed} credits). ${attempt < MAX_RETRIES - 1 ? 'Retrying...' : 'No more retries.'}`);
+        continue;
+      }
+
+      // Non-retryable error — throw immediately
+      throw error;
+    }
+  }
+
+  // All retries exhausted
+  throw lastError || new ScrapingError('All scraping attempts failed', { totalCreditsUsed });
+}
+
+/**
+ * Single ScrapingBee API request (no retries)
+ */
+async function scrapeWithScrapingBeeOnce(url: string): Promise<ScrapingBeeResponse> {
   const apiKey = getScrapingBeeApiKey();
 
   const params = new URLSearchParams({
