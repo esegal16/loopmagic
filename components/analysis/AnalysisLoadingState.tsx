@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Loader, MapPin, Map, SquareActivity } from 'lucide-react';
+import { Check, Loader, MapPin, Repeat } from 'lucide-react';
 import { DbProperty } from '@/lib/supabase/database';
 import Link from 'next/link';
 
@@ -34,6 +34,21 @@ export function AnalysisLoadingState({ property }: AnalysisLoadingStateProps) {
     { label: 'Writing investment memo...', status: 'pending' },
   ];
 
+  const formatCurrency = (val: number | null | undefined): string => {
+    if (val === null || val === undefined) return '...';
+    return `$${val.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  };
+
+  const formatPricePerUnit = (val: number | null | undefined): string => {
+    if (val === null || val === undefined) return '...';
+    return `$${val.toLocaleString('en-US', { maximumFractionDigits: 0 })}/unit`;
+  };
+
+  const formatPricePerSF = (val: number | null | undefined): string => {
+    if (val === null || val === undefined) return '...';
+    return `$${val.toLocaleString('en-US', { maximumFractionDigits: 0 })}/SF`;
+  };
+
   const dataRows = [
     { label: 'Property Type', value: property?.property_type || '...' },
     { label: 'Units', value: property?.units?.toString() || '...' },
@@ -43,12 +58,14 @@ export function AnalysisLoadingState({ property }: AnalysisLoadingStateProps) {
         ? `${property.building_size.toLocaleString()} SF`
         : '...',
     },
+    { label: 'Lot Size', value: raw?.lotSize || '...' },
     {
       label: 'Price',
-      value: property?.price
-        ? `$${property.price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
-        : '...',
+      value: formatCurrency(property?.price),
     },
+    { label: 'Price/Unit', value: formatPricePerUnit(property?.price_per_unit) },
+    { label: 'Price/SF', value: formatPricePerSF(property?.price_per_sf) },
+    { label: 'Listed Cap Rate', value: property?.cap_rate || '...' },
     { label: 'Year Built', value: property?.year_built?.toString() || '...' },
   ];
 
@@ -58,7 +75,7 @@ export function AnalysisLoadingState({ property }: AnalysisLoadingStateProps) {
       <header className="bg-white border-b border-lm-border h-12 flex items-center px-6 shrink-0">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-7 h-7 bg-lm-text rounded flex items-center justify-center">
-            <SquareActivity className="w-4 h-4 text-white" />
+            <Repeat className="w-4 h-4 text-white" />
           </div>
           <span className="font-heading text-base font-bold tracking-wide text-lm-text">
             LoopMagic
@@ -84,17 +101,17 @@ export function AnalysisLoadingState({ property }: AnalysisLoadingStateProps) {
                 }`}
               >
                 {step.status === 'complete' && (
-                  <div className="w-6 h-6 bg-lm-green rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 bg-lm-green rounded flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5 text-white" />
                   </div>
                 )}
                 {step.status === 'active' && (
-                  <div className="w-6 h-6 bg-lm-amber rounded-full flex items-center justify-center shrink-0 animate-pulse">
+                  <div className="w-6 h-6 bg-lm-amber rounded flex items-center justify-center shrink-0 animate-pulse">
                     <Loader className="w-3.5 h-3.5 text-white animate-spin" />
                   </div>
                 )}
                 {step.status === 'pending' && (
-                  <div className="w-6 h-6 border-[1.5px] border-lm-border rounded-full shrink-0" />
+                  <div className="w-6 h-6 border-[1.5px] border-lm-border rounded shrink-0" />
                 )}
                 <span
                   className={`text-sm ${
@@ -129,15 +146,22 @@ export function AnalysisLoadingState({ property }: AnalysisLoadingStateProps) {
             )}
           </div>
 
-          {/* Preview Map */}
-          <div className="w-full h-[140px] bg-[#E0DDD5] relative">
+          {/* Preview Map with pulse animation */}
+          <div className="w-full h-[140px] bg-[#E0DDD5] relative overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <Map className="w-6 h-6 text-lm-text-tertiary mx-auto mb-1" />
-                <p className="text-[10px] text-lm-text-tertiary">
-                  Map — {address ? `${address.city}, ${address.state}` : 'Loading...'}
-                </p>
+              <div className="relative flex items-center justify-center">
+                {/* Pulse rings */}
+                <div className="absolute w-24 h-24 rounded-full border border-lm-text-tertiary/20 animate-ping" style={{ animationDuration: '2s' }} />
+                <div className="absolute w-16 h-16 rounded-full border border-lm-text-tertiary/30 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
+                <div className="absolute w-10 h-10 rounded-full border border-lm-text-tertiary/40 animate-pulse" />
+                {/* Pin */}
+                <MapPin className="w-5 h-5 text-lm-amber relative z-10" />
               </div>
+            </div>
+            <div className="absolute bottom-2 left-0 right-0 text-center">
+              <p className="text-[10px] text-lm-text-tertiary font-medium">
+                Locating...
+              </p>
             </div>
           </div>
 

@@ -12,7 +12,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
   ) => {
     const variants = {
       default: 'bg-white',
-      bordered: 'bg-white border border-gray-200',
+      bordered: 'bg-white border border-lm-border',
       elevated: 'bg-white shadow-lg',
     };
 
@@ -74,7 +74,7 @@ const CardDescription = forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className = '', children, ...props }, ref) => (
-  <p ref={ref} className={`text-sm text-gray-500 ${className}`} {...props}>
+  <p ref={ref} className={`text-sm text-lm-text-secondary ${className}`} {...props}>
     {children}
   </p>
 ));

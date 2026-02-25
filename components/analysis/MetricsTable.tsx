@@ -79,19 +79,19 @@ export function MetricsTable({ metrics }: MetricsTableProps) {
     <div className="space-y-6">
       {sections.map((section) => (
         <div key={section.title}>
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-lm-text-secondary uppercase tracking-wider mb-3">
             {section.title}
           </h3>
-          <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+          <div className="bg-white rounded-lg border border-lm-border divide-y divide-lm-border">
             {section.metrics.map((metric) => (
               <div
                 key={metric.label}
                 className="flex justify-between items-center px-4 py-3"
               >
-                <span className="text-sm text-gray-600">{metric.label}</span>
+                <span className="text-sm text-lm-text-secondary">{metric.label}</span>
                 <span
                   className={`text-sm font-medium ${
-                    metric.highlight ? 'text-blue-600' : 'text-gray-900'
+                    metric.highlight ? 'text-lm-green' : 'text-lm-text'
                   }`}
                 >
                   {metric.value}
@@ -132,8 +132,8 @@ export function MetricsSummary({ metrics }: MetricsSummaryProps) {
     <div className="flex gap-4">
       {summaryMetrics.map((m) => (
         <div key={m.label} className="text-center">
-          <p className="text-xs text-gray-500 uppercase">{m.label}</p>
-          <p className="text-lg font-semibold text-gray-900">{m.value}</p>
+          <p className="text-xs text-lm-text-secondary uppercase">{m.label}</p>
+          <p className="text-lg font-semibold text-lm-text">{m.value}</p>
         </div>
       ))}
     </div>

@@ -47,9 +47,9 @@ export function SignupForm() {
     return (
       <div className="w-full max-w-md text-center">
         <div className="mb-4">
-          <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+          <div className="mx-auto w-12 h-12 bg-lm-green/15 rounded-full flex items-center justify-center">
             <svg
-              className="w-6 h-6 text-green-600"
+              className="w-6 h-6 text-lm-green"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -63,8 +63,8 @@ export function SignupForm() {
             </svg>
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Check your email</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-2xl font-heading font-bold text-lm-text">Check your email</h1>
+        <p className="mt-2 text-lm-text-secondary">
           We've sent a confirmation link to <strong>{email}</strong>. Click the
           link to activate your account.
         </p>
@@ -80,8 +80,8 @@ export function SignupForm() {
   return (
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-        <p className="mt-2 text-gray-600">Start analyzing deals with LoopMagic</p>
+        <h1 className="text-2xl font-heading font-bold text-lm-text">Create your account</h1>
+        <p className="mt-2 text-lm-text-secondary">Start analyzing deals with LoopMagic</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -126,9 +126,9 @@ export function SignupForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-lm-text-secondary">
         Already have an account?{' '}
-        <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium">
+        <Link href="/auth/login" className="text-lm-green hover:underline font-medium">
           Sign in
         </Link>
       </p>

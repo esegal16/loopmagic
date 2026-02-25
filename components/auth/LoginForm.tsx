@@ -41,8 +41,8 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-        <p className="mt-2 text-gray-600">Sign in to your LoopMagic account</p>
+        <h1 className="text-2xl font-heading font-bold text-lm-text">Welcome back</h1>
+        <p className="mt-2 text-lm-text-secondary">Sign in to your LoopMagic account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,9 +77,9 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-lm-text-secondary">
         Don't have an account?{' '}
-        <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+        <Link href="/auth/signup" className="text-lm-green hover:underline font-medium">
           Sign up
         </Link>
       </p>

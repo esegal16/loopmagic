@@ -12,7 +12,7 @@ export function Spinner({ size = 'md', className = '' }: SpinnerProps) {
 
   return (
     <svg
-      className={`animate-spin text-blue-600 ${sizes[size]} ${className}`}
+      className={`animate-spin text-lm-amber ${sizes[size]} ${className}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ export function LoadingOverlay({ message = 'Loading...' }: LoadingOverlayProps) 
     <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="flex flex-col items-center gap-4">
         <Spinner size="lg" />
-        <p className="text-gray-600 font-medium">{message}</p>
+        <p className="text-lm-text-secondary font-medium">{message}</p>
       </div>
     </div>
   );
@@ -58,7 +58,7 @@ export function LoadingState({ message = 'Loading...', className = '' }: Loading
   return (
     <div className={`flex flex-col items-center justify-center py-12 ${className}`}>
       <Spinner size="lg" />
-      <p className="mt-4 text-gray-600">{message}</p>
+      <p className="mt-4 text-lm-text-secondary">{message}</p>
     </div>
   );
 }

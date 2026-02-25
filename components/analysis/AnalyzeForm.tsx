@@ -88,7 +88,7 @@ export function AnalyzeForm({ onSuccess }: AnalyzeFormProps) {
           />
 
           {loading && status && (
-            <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+            <div className="bg-lm-amber/10 border border-lm-amber/30 text-lm-amber px-4 py-3 rounded-lg text-sm flex items-center gap-2">
               <svg
                 className="animate-spin h-4 w-4"
                 fill="none"

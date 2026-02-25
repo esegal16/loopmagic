@@ -8,11 +8,11 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ className = '', variant = 'default', size = 'md', children, ...props }, ref) => {
     const variants = {
-      default: 'bg-gray-100 text-gray-800',
-      success: 'bg-green-100 text-green-800',
-      warning: 'bg-yellow-100 text-yellow-800',
-      danger: 'bg-red-100 text-red-800',
-      info: 'bg-blue-100 text-blue-800',
+      default: 'bg-lm-card text-lm-text',
+      success: 'bg-lm-green/15 text-lm-green',
+      warning: 'bg-lm-amber/15 text-lm-amber',
+      danger: 'bg-lm-red/15 text-lm-red',
+      info: 'bg-lm-blue/15 text-lm-blue',
     };
 
     const sizes = {
@@ -59,7 +59,9 @@ export function RecommendationBadge({ verdict, size = 'md' }: RecommendationBadg
     lg: 'px-3.5 py-1.5 text-xs',
   };
 
-  const { label, bg, text } = config[verdict];
+  const entry = config[verdict as keyof typeof config];
+  if (!entry) return null;
+  const { label, bg, text } = entry;
 
   return (
     <span

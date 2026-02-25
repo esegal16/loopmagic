@@ -46,14 +46,14 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
       <Card
         variant="bordered"
         padding="md"
-        className="hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+        className="hover:border-lm-green hover:shadow-sm transition-all cursor-pointer"
       >
         <div className="flex justify-between items-start mb-3">
           <div>
-            <h3 className="font-medium text-gray-900 truncate max-w-xs">
+            <h3 className="font-medium text-lm-text truncate max-w-xs">
               {property?.address?.fullAddress || property?.property_name || 'Unknown Property'}
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-lm-text-secondary">
               {property?.property_type || 'Property'} - {property?.units ?? '?'} units
             </p>
           </div>
@@ -71,27 +71,27 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
         </div>
 
         {analysis.status === 'complete' && metrics && (
-          <div className="grid grid-cols-4 gap-4 pt-3 border-t border-gray-100">
+          <div className="grid grid-cols-4 gap-4 pt-3 border-t border-lm-border">
             <div>
-              <p className="text-xs text-gray-500">Price</p>
+              <p className="text-xs text-lm-text-secondary">Price</p>
               <p className="text-sm font-medium">
                 {formatCurrency(metrics.acquisition?.purchasePrice)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">IRR</p>
-              <p className="text-sm font-medium text-blue-600">
+              <p className="text-xs text-lm-text-secondary">IRR</p>
+              <p className="text-sm font-medium text-lm-green">
                 {formatPct(metrics.irr?.levered)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Multiple</p>
+              <p className="text-xs text-lm-text-secondary">Multiple</p>
               <p className="text-sm font-medium">
                 {metrics.equityMultiple?.levered?.toFixed(2) || 'N/A'}x
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">DSCR</p>
+              <p className="text-xs text-lm-text-secondary">DSCR</p>
               <p className="text-sm font-medium">
                 {metrics.year1?.dscr?.toFixed(2) || 'N/A'}
               </p>
@@ -99,12 +99,12 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
           </div>
         )}
 
-        <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-400">
+        <div className="flex justify-between items-center mt-3 pt-3 border-t border-lm-border">
+          <span className="text-xs text-lm-text-tertiary">
             {formatDate(analysis.created_at)}
           </span>
           {analysis.total_duration_ms && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-lm-text-tertiary">
               {(analysis.total_duration_ms / 1000).toFixed(1)}s
             </span>
           )}

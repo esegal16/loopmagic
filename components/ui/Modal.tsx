@@ -66,21 +66,21 @@ export function Modal({
         >
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-start justify-between p-6 border-b border-gray-100">
+            <div className="flex items-start justify-between p-6 border-b border-lm-border">
               <div>
                 {title && (
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-lg font-semibold text-lm-text">
                     {title}
                   </h2>
                 )}
                 {description && (
-                  <p className="mt-1 text-sm text-gray-500">{description}</p>
+                  <p className="mt-1 text-sm text-lm-text-secondary">{description}</p>
                 )}
               </div>
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-500 transition-colors"
+                  className="text-lm-text-tertiary hover:text-lm-text-secondary transition-colors"
                 >
                   <svg
                     className="h-5 w-5"
@@ -141,7 +141,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-      <p className="text-gray-600 mb-6">{message}</p>
+      <p className="text-lm-text-secondary mb-6">{message}</p>
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} disabled={loading}>
           {cancelLabel}
